@@ -1,0 +1,21 @@
+{
+    "name": "hrishikesh-rpc",
+    "version": "1.0.0",
+    "description": "Meh",
+    "main": "dist/index.js",
+    "author": "Hrishikesh Patil <hrishikeshpatil.754@gmail.com> (https://riskycase.netlify.app/)",
+    "license": "MIT",
+    "private": true,
+    "scripts": {
+        "start": "node dist/index.js"
+    },
+    "dependencies": {
+        "@types/discord-rpc": "^4.0.0",
+        "discord-rpc": "^4.0.1",
+        "prettier": "^2.3.2",
+        "typescript": "^4.3.5"
+    },
+    "devDependencies": {
+        "@types/node": "^16.4.13"
+    }
+}
