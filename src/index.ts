@@ -1,9 +1,12 @@
 import { exec } from 'child_process';
-import RPC from 'discord-rpc';
+import { Client } from 'discord-rpc';
 import { clientId, defaultState } from './config.json';
+import { runningGames } from './applications';
 
 let startTimestamp = Date.now();
 let details = defaultState.unlocked;
+let connectTimeout: NodeJS.Timeout;
+let client: Client;
 
 setInterval(
     () =>
@@ -12,8 +15,14 @@ setInterval(
             { shell: 'powershell.exe' },
             (_error, stdout, _stderr) => {
                 if (stdout.trim() !== '') {
-                    if (details !== defaultState.onLockScreen) startTimestamp = Date.now();
+                    if (details !== defaultState.onLockScreen)
+                        startTimestamp = Date.now();
                     details = defaultState.onLockScreen;
+                } else if (details !== defaultState.unlocked) {
+                    client
+                        .clearActivity()
+                        .then(client.destroy)
+                        .then(() => process.exit());
                 }
             }
         ),
@@ -21,16 +30,40 @@ setInterval(
 );
 
 function setPresence() {
-    client.setActivity({
-        details,
-        startTimestamp,
-        largeImageKey: 'rog-logo',
-        largeImageText: 'ROG',
-    });
-    setTimeout(setPresence, 5e3);
+    client
+        .setActivity(
+            runningGames.length
+                ? {
+                      details: `Gaming`,
+                      startTimestamp: runningGames[0].start,
+                      smallImageKey: 'rog',
+                      smallImageText: 'ROG',
+                      largeImageKey: runningGames[0].imageKey,
+                      largeImageText: runningGames[0].name,
+                  }
+                : {
+                      details,
+                      startTimestamp,
+                      largeImageKey: 'rog',
+                      largeImageText: 'ROG',
+                  }
+        )
+        .then(() => setTimeout(setPresence, 5e3))
+        .catch(error => {
+            console.error(error);
+        });
 }
 
-const client = new RPC.Client({ transport: 'ipc' });
-client.on('ready', setPresence);
+function connect() {
+    clearTimeout(connectTimeout);
+    client = new Client({ transport: 'ipc' });
+    client.on('ready', setPresence);
+    client.login({ clientId }).catch((error: NodeJS.ErrnoException) => {
+        console.error(error);
+        if (error.message === 'RPC_CONNECTION_TIMEOUT') {
+            connectTimeout = setTimeout(connect, 15e3);
+        } else connectTimeout = setTimeout(connect, 2500);
+    });
+}
 
-client.login({ clientId }).catch(console.error);
+connect();
