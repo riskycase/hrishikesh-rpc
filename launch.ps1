@@ -1,1 +1,0 @@
-Start-Process node .\dist\index.js

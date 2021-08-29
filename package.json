@@ -7,7 +7,9 @@
     "license": "MIT",
     "private": true,
     "scripts": {
-        "start": "node dist/index.js"
+        "start": "node dist/index.js",
+        "format": "yarn prettier --write .",
+        "compile": "yarn tsc"
     },
     "dependencies": {
         "@types/discord-rpc": "^4.0.0",

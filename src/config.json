@@ -2,6 +2,9 @@
     "clientId": "874718200997232710",
     "defaultState": {
         "onLockScreen": "AFK",
-        "unlocked": "Working"
+        "unlocked": "Working",
+        "defaultImageKey": "rog",
+        "defaultImageText": "ROG",
+        "gameRunningText": "Gaming"
     }
 }

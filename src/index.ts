@@ -6,6 +6,7 @@ import { runningGames } from './applications';
 let startTimestamp = Date.now();
 let details = defaultState.unlocked;
 let connectTimeout: NodeJS.Timeout;
+let presenceTimeout: NodeJS.Timeout;
 let client: Client;
 
 setInterval(
@@ -15,14 +16,15 @@ setInterval(
             { shell: 'powershell.exe' },
             (_error, stdout, _stderr) => {
                 if (stdout.trim() !== '') {
-                    if (details !== defaultState.onLockScreen)
+                    if (details !== defaultState.onLockScreen) {
                         startTimestamp = Date.now();
-                    details = defaultState.onLockScreen;
+                        details = defaultState.onLockScreen;
+                        setPresence();
+                    }
                 } else if (details !== defaultState.unlocked) {
-                    client
-                        .clearActivity()
-                        .then(client.destroy)
-                        .then(() => process.exit());
+                    startTimestamp = Date.now();
+                    details = defaultState.unlocked;
+                    setPresence();
                 }
             }
         ),
@@ -30,25 +32,29 @@ setInterval(
 );
 
 function setPresence() {
-    client
-        .setActivity(
-            runningGames.length
-                ? {
-                      details: `Gaming`,
-                      startTimestamp: runningGames[0].start,
-                      smallImageKey: 'rog',
-                      smallImageText: 'ROG',
-                      largeImageKey: runningGames[0].imageKey,
-                      largeImageText: runningGames[0].name,
-                  }
-                : {
-                      details,
-                      startTimestamp,
-                      largeImageKey: 'rog',
-                      largeImageText: 'ROG',
-                  }
-        )
-        .then(() => setTimeout(setPresence, 5e3))
+    clearTimeout(presenceTimeout);
+    let presencePromise: Promise<any>;
+    if (details === defaultState.unlocked && runningGames.length) {
+        presencePromise = client.setActivity({
+            details: defaultState.gameRunningText,
+            startTimestamp: runningGames[0].start,
+            smallImageKey: defaultState.defaultImageKey,
+            smallImageText: defaultState.defaultImageText,
+            largeImageKey: runningGames[0].imageKey,
+            largeImageText: runningGames[0].name,
+        });
+    } else {
+        presencePromise = client.setActivity({
+            details,
+            startTimestamp,
+            largeImageKey: defaultState.defaultImageKey,
+            largeImageText: defaultState.defaultImageText,
+        });
+    }
+    presencePromise
+        .then(() => {
+            presenceTimeout = setTimeout(setPresence, 5e3);
+        })
         .catch(error => {
             console.error(error);
         });
