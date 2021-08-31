@@ -1,7 +1,8 @@
 import { exec } from 'child_process';
 import { Client } from 'discord-rpc';
 import { clientId, defaultState } from './config.json';
-import { runningGames } from './applications';
+import { getRunningGames } from './applications';
+import { getRunningApps } from './server';
 
 let startTimestamp = Date.now();
 let details = defaultState.unlocked;
@@ -34,6 +35,8 @@ setInterval(
 function setPresence() {
     clearTimeout(presenceTimeout);
     let presencePromise: Promise<any>;
+    const runningGames = getRunningGames();
+    const runningApps = getRunningApps();
     if (details === defaultState.unlocked && runningGames.length) {
         presencePromise = client.setActivity({
             details: defaultState.gameRunningText,
@@ -43,6 +46,17 @@ function setPresence() {
             largeImageKey: runningGames[0].imageKey,
             largeImageText: runningGames[0].name,
         });
+    } else if (
+        details === defaultState.unlocked &&
+        runningApps.length &&
+        runningApps.find(runningApp => runningApp.presence)
+    ) {
+        const presence = runningApps.find(
+            runningApp => runningApp.presence
+        ).presence;
+        presence.smallImageKey = defaultState.defaultImageKey;
+        (presence.smallImageText = defaultState.defaultImageText),
+            (presencePromise = client.setActivity(presence));
     } else {
         presencePromise = client.setActivity({
             details,
@@ -73,3 +87,5 @@ function connect() {
 }
 
 connect();
+
+export { setPresence };

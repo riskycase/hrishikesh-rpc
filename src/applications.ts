@@ -7,7 +7,7 @@ interface GameData {
     imageKey: string;
 }
 
-let runningGames: GameData[];
+let runningGames: GameData[] = [];
 
 const execs = [
     {
@@ -92,4 +92,9 @@ function getRunningApps() {
 setInterval(getRunningApps, 500);
 getRunningApps();
 
-export { runningGames };
+const getRunningGames = () =>
+    runningGames.sort(
+        (first, second) => first.start.valueOf() - second.start.valueOf()
+    );
+
+export { getRunningGames };
