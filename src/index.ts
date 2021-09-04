@@ -10,27 +10,28 @@ let connectTimeout: NodeJS.Timeout;
 let presenceTimeout: NodeJS.Timeout;
 let client: Client;
 
-setInterval(
-    () =>
-        exec(
-            'Get-Process LogonUI',
-            { shell: 'powershell.exe' },
-            (_error, stdout, _stderr) => {
-                if (stdout.trim() !== '') {
-                    if (details !== defaultState.onLockScreen) {
-                        startTimestamp = Date.now();
-                        details = defaultState.onLockScreen;
-                        setPresence();
-                    }
-                } else if (details !== defaultState.unlocked) {
+function checkLoginState() {
+    exec(
+        'Get-Process LogonUI',
+        { shell: 'powershell.exe' },
+        (_error, stdout, _stderr) => {
+            if (stdout.trim() !== '') {
+                if (details !== defaultState.onLockScreen) {
                     startTimestamp = Date.now();
-                    details = defaultState.unlocked;
+                    details = defaultState.onLockScreen;
                     setPresence();
                 }
+            } else if (details !== defaultState.unlocked) {
+                startTimestamp = Date.now();
+                details = defaultState.unlocked;
+                setPresence();
             }
-        ),
-    500
-);
+        }
+    );
+    setTimeout(checkLoginState, 500);
+}
+
+checkLoginState();
 
 function setPresence() {
     clearTimeout(presenceTimeout);

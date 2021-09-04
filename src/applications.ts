@@ -88,8 +88,8 @@ function getRunningApps() {
             }
         }
     );
+    setTimeout(getRunningApps, 500);
 }
-setInterval(getRunningApps, 500);
 getRunningApps();
 
 const getRunningGames = () =>
