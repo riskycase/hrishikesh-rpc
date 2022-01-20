@@ -41,6 +41,11 @@ const execs = [
         path: 'D:\\Games\\Halo - The Master Chief Collection\\MCC\\Binaries\\Win64\\MCC-Win64-Shipping.exe',
     },
     {
+        displayName: 'Saints Row®: The Third™ Remastered',
+        imageKey: 'saints',
+        path: 'D:\\Games\\SaintsRowTheThird\\SRTTR.exe',
+    },
+    {
         displayName: 'Minecraft Java',
         imageKey: 'minecraft',
         path: 'C:\\Users\\hrish\\AppData\\Roaming\\.minecraft\\runtime\\java-runtime-alpha\\windows\\java-runtime-alpha\\bin\\javaw.exe',

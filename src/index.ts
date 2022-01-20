@@ -12,10 +12,9 @@ let client: Client;
 
 function checkLoginState() {
     exec(
-        'Get-Process LogonUI',
-        { shell: 'powershell.exe' },
+        'tasklist /fi "IMAGENAME eq LogonUI.exe"',
         (_error, stdout, _stderr) => {
-            if (stdout.trim() !== '') {
+            if (stdout.substr(0, 4) !== 'INFO') {
                 if (details !== defaultState.onLockScreen) {
                     startTimestamp = Date.now();
                     details = defaultState.onLockScreen;
@@ -56,8 +55,8 @@ function setPresence() {
             runningApp => runningApp.presence
         ).presence;
         presence.smallImageKey = defaultState.defaultImageKey;
-        (presence.smallImageText = defaultState.defaultImageText),
-            (presencePromise = client.setActivity(presence));
+        presence.smallImageText = defaultState.defaultImageText;
+        presencePromise = client.setActivity(presence);
     } else {
         presencePromise = client.setActivity({
             details,
