@@ -3,6 +3,7 @@ import { Client } from 'discord-rpc';
 import { clientId, defaultState } from './config.json';
 import { getRunningGames } from './applications';
 import { getRunningApps } from './server';
+import path from 'path';
 
 let startTimestamp = Date.now();
 let details = defaultState.unlocked;
@@ -12,9 +13,12 @@ let client: Client;
 
 function checkLoginState() {
     exec(
-        'tasklist /fi "IMAGENAME eq LogonUI.exe"',
+        'GetProcessInfo.exe LogonUI.exe',
+        {
+            cwd: path.join(__dirname, '..', 'executables'),
+        },
         (_error, stdout, _stderr) => {
-            if (stdout.substr(0, 4) !== 'INFO') {
+            if (stdout.substr(0, 2) !== '-1') {
                 if (details !== defaultState.onLockScreen) {
                     startTimestamp = Date.now();
                     details = defaultState.onLockScreen;
