@@ -91,9 +91,9 @@ function getRunningApps() {
             } catch {
                 runningGames = [];
             }
+            setTimeout(getRunningApps, 500);
         }
     );
-    setTimeout(getRunningApps, 500);
 }
 getRunningApps();
 
